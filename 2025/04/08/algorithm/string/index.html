@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>算法题-字符串 | 似锦的个人博客</title><meta name="author" content="似锦"><meta name="copyright" content="似锦"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="题目及解法来源于代码随想录，本文为记录本人的一些思考  字符串 基础KMP算法(有多种实现，自己推一遍印象更深)用于子串匹配用于计算出现失配时，下次从哪里开始匹配，减少重复的匹配工作主串的每个字符仅需计算一次，时间复杂度为O(m+n)（m,n分别为模式串与主串的长度）重点为前缀表与next数组 前缀表与next数组模式串的最长公共前后缀（前缀不包含最后一个字符，后缀不包含第一个字符）计算next">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法题-字符串">
+<meta property="og:url" content="https://pathwoven.github.io/2025/04/08/algorithm/string/index.html">
+<meta property="og:site_name" content="似锦的个人博客">
+<meta property="og:description" content="题目及解法来源于代码随想录，本文为记录本人的一些思考  字符串 基础KMP算法(有多种实现，自己推一遍印象更深)用于子串匹配用于计算出现失配时，下次从哪里开始匹配，减少重复的匹配工作主串的每个字符仅需计算一次，时间复杂度为O(m+n)（m,n分别为模式串与主串的长度）重点为前缀表与next数组 前缀表与next数组模式串的最长公共前后缀（前缀不包含最后一个字符，后缀不包含第一个字符）计算next">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pathwoven.github.io/imgs/avatar.jpg">
+<meta property="article:published_time" content="2025-04-08T05:28:33.000Z">
+<meta property="article:modified_time" content="2025-04-14T08:39:10.936Z">
+<meta property="article:author" content="似锦">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pathwoven.github.io/imgs/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "算法题-字符串",
+  "url": "https://pathwoven.github.io/2025/04/08/algorithm/string/",
+  "image": "https://pathwoven.github.io/imgs/avatar.jpg",
+  "datePublished": "2025-04-08T05:28:33.000Z",
+  "dateModified": "2025-04-14T08:39:10.936Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "似锦",
+      "url": "https://pathwoven.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/imgs/favicon.png"><link rel="canonical" href="https://pathwoven.github.io/2025/04/08/algorithm/string/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '算法题-字符串',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/imgs/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/imgs/background.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">似锦的个人博客</span></a><a class="nav-page-title" href="/"><span class="site-name">算法题-字符串</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">算法题-字符串</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-04-08T05:28:33.000Z" title="发表于 2025-04-08 13:28:33">2025-04-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-14T08:39:10.936Z" title="更新于 2025-04-14 16:39:10">2025-04-14</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>题目及解法来源于代码随想录，本文为记录本人的一些思考</p>
+</blockquote>
+<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><hr>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="KMP算法-有多种实现，自己推一遍印象更深"><a href="#KMP算法-有多种实现，自己推一遍印象更深" class="headerlink" title="KMP算法(有多种实现，自己推一遍印象更深)"></a>KMP算法(有多种实现，自己推一遍印象更深)</h3><p>用于子串匹配<br>用于计算出现失配时，下次从哪里开始匹配，减少重复的匹配工作<br>主串的每个字符仅需计算一次，时间复杂度为O(m+n)（m,n分别为模式串与主串的长度）<br>重点为前缀表与next数组</p>
+<h4 id="前缀表与next数组"><a href="#前缀表与next数组" class="headerlink" title="前缀表与next数组"></a>前缀表与next数组</h4><p>模式串的最长公共前后缀（前缀<em>不包含最后一个字符</em>，后缀<em>不包含第一个字符</em>）<br>计算<strong>next数组</strong>（next[i]指<em>第i-1位</em>的公共前后缀长度，也是i号位失配时，模式串下一个需要匹配的索引）：  </p>
+<ul>
+<li>初始化<ul>
+<li>j指向前缀末尾，i指向后缀末尾</li>
+</ul>
+</li>
+<li>循环遍历(i,j都需加1)<ul>
+<li>当前后缀（p[i]与p[j]）相同时<ul>
+<li>将前缀j+1赋值给next数组，注意无公共前后缀的情况</li>
+</ul>
+</li>
+<li>当前后缀不同时<ul>
+<li>相当于模式串在第j位失配，j指针回退（<u>只有指向前缀的指针回退</u>）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>c++代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">i=<span class="number">1</span>;</span><br><span class="line">j=<span class="number">0</span>;</span><br><span class="line">nxt[<span class="number">0</span>]=nxt[<span class="number">1</span>]=<span class="number">0</span>;   <span class="comment">// 前两位失配，下一次都需要从第0位开始匹配</span></span><br><span class="line"><span class="keyword">while</span>(i&lt;pLen)&#123;</span><br><span class="line">    <span class="keyword">while</span>(j &amp;&amp; p[j]!=p[i]) j=nxt[j];  <span class="comment">// 注意j!=0的退出条件。nxt数组是模式串失配时，下一个需要匹配的索引，所以直接令j=nxt[j]</span></span><br><span class="line">    nxt[i<span class="number">+1</span>]=(p[j]==p[i]?++j:<span class="number">0</span>);   <span class="comment">// nxt[i]是i-1位的公共前后缀长度。当不相等时，即为无公共前后缀，赋值为0。当相等时，需要赋值j+1，同时前缀j需要后移，匹配下一项</span></span><br><span class="line">    i++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="实际匹配"><a href="#实际匹配" class="headerlink" title="实际匹配"></a>实际匹配</h4><p>使用next数组进行匹配，第j位失配时，则用next[j]进行匹配  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">i=j=<span class="number">0</span>; <span class="comment">// i指向主串str，j指向模式串p   str与i，j与p是成对出现的，不要写混</span></span><br><span class="line"><span class="keyword">while</span>(j&lt;pLen &amp;&amp; i&lt;strLen)&#123;  <span class="comment">// 当模式串没有完全匹配</span></span><br><span class="line">    <span class="keyword">while</span>(j &amp;&amp; p[j]!=str[i]) j=nxt[j];   <span class="comment">// 回退模式串的指针</span></span><br><span class="line">    <span class="keyword">if</span>(str[i]==p[j])&#123;</span><br><span class="line">        j++;</span><br><span class="line">    &#125;</span><br><span class="line">    i++;   <span class="comment">// 指向主串的指针一直前进，无论是否匹配，都只会计算一次</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h4><p>搞清楚谁在回退，谁在前进。前缀的指针与模式串的指针可能会回退，而后缀的指针与主串的指针一直在前进。<br>KMP在具体细节上有多种实现，不同的next数组的计算对应着不同的实际匹配</p>
+<hr>
+<h2 id="反转字符串"><a href="#反转字符串" class="headerlink" title="反转字符串"></a>反转字符串</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/reverse-string/submissions/615571417/">https://leetcode.cn/problems/reverse-string/submissions/615571417/</a><br>给定一个字符串，在原字符串上反转，不能有额外空间分配  </p>
+<h3 id="解"><a href="#解" class="headerlink" title="解"></a>解</h3><p>需要在原字符串上反转，由于是头尾反转，所以可以想到双指针</p>
+<h2 id="替换数字"><a href="#替换数字" class="headerlink" title="替换数字"></a>替换数字</h2><p><a target="_blank" rel="noopener" href="https://kamacoder.com/problempage.php?pid=1064">https://kamacoder.com/problempage.php?pid=1064</a><br>将输入字符串中的数字替换为’number’<br>数组填充类解法：<br><strong>提前扩容，从后往前操作</strong><br>首先统计数字的个数，提前扩容，使用双指针，从后往前遍历新旧数组</p>
+<hr>
+<h2 id="反转字符串中的单词"><a href="#反转字符串中的单词" class="headerlink" title="反转字符串中的单词"></a>反转字符串中的单词</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/reverse-words-in-a-string/description/">https://leetcode.cn/problems/reverse-words-in-a-string/description/</a><br>给定字符串句子，使句子中的单词顺序反转，删去多余的空格，并且空间复杂度为O(1)  </p>
+<h3 id="解-1"><a href="#解-1" class="headerlink" title="解"></a>解</h3><p>分三步走  </p>
+<ul>
+<li>首先去除多余空格（不要和其他步骤混杂，会搞晕的）<ul>
+<li>在数组中，去除所有的指定元素，使用快慢<strong>双指针</strong>法</li>
+</ul>
+</li>
+<li>反转整个句子</li>
+<li>反转单词<br>在之前已做过反转字符串，字符串反转后再反转单词，那么就相当于单词顺序反转了</li>
+</ul>
+<h2 id="右旋字符串"><a href="#右旋字符串" class="headerlink" title="右旋字符串"></a>右旋字符串</h2><p><a target="_blank" rel="noopener" href="https://kamacoder.com/problempage.php?pid=1065">https://kamacoder.com/problempage.php?pid=1065</a><br>将字符串的最后k个字符调到最前面，O(1)的额外空间复杂度  </p>
+<h3 id="解-2"><a href="#解-2" class="headerlink" title="解"></a>解</h3><p>与之前的反转字符串中的单词一样，要求<u>调换子数组的位置，且子数组内的排序不变</u>，可以采用<strong>整体反转+局部反转</strong>，反转两次后，就可以前后调换子数组的位置了。  </p>
+<p align="center">
+<img src="/imgs/algorithm/string.png" width=60% />
+</p>
+
+<hr>
+<h2 id="匹配模式串"><a href="#匹配模式串" class="headerlink" title="匹配模式串"></a>匹配模式串</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/">https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/</a><br>KMP秒了</p>
+<hr>
+<h2 id="重复的子字符串"><a href="#重复的子字符串" class="headerlink" title="重复的子字符串"></a>重复的子字符串</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/repeated-substring-pattern/">https://leetcode.cn/problems/repeated-substring-pattern/</a><br>判断一个字符串能否由其字串重复n次后构成   </p>
+<h3 id="解-3"><a href="#解-3" class="headerlink" title="解"></a>解</h3><ul>
+<li>暴力</li>
+<li>移动匹配</li>
+<li>KMP</li>
+</ul>
+<p><strong>暴力求解</strong>的话，由于只需要知道终止位置就可以（该<u>子串必然要从第一个字符开头</u>），判断的时候也是一次遍历即可，所以是O(n^2)，复杂度并不算很高。<br><strong>移动匹配</strong>的思路是：将原字符s串首尾相连，构成ss，并去掉第一个和最后一个字符（防止误判），如果能在其中找到子串s，则满足要求。该方法需要在ss里匹配s，要么也使用KMP，要么调库函数（如contains，find，不同语言库函数实现不同，一般复杂度为O(m+n)）   </p>
+<h4 id="KMP算法"><a href="#KMP算法" class="headerlink" title="KMP算法"></a>KMP算法</h4><p>主要思路为：如果一个字符串s可以由其子串重复n次组成，那么其最长公共前后缀不包含的子串一定是s的最小重复子串（注意，前缀不包含最后一个字符，后缀也不包含第一个字符），如下图：  </p>
+<p align=center><img src="/imgs/algorithm/string-1.png" width=50%/></p>
+
+<p>由图也可以看出，s的长度必然可以整除该最小子串。而反过来，假如已知s的长度可以整除该子串p，那么，就可以将前缀划分为长度相等的块p1,p2,….pn。p等于pn，进而等于pn-1（比对前后缀的位置即可得出）<br>所以计算方法如下(时间复杂度为O(n)) ：(next表实现不同，索引上会有差异) </p>
+<ul>
+<li>计算next表</li>
+<li>根据next[len]得到最长公共前后缀</li>
+<li>计算len能否整除(len-next[len])</li>
+</ul>
+<p>而我自己的思路如下（非常麻烦，只是留个档）：假如可以由某子串重复构成，那么他就一定是在公共的前后缀里，所以可以先计算next表，获取整个字符串的公共前后缀，然后，计算该公共前后缀是否能重复n次组成s，不能的话，获取该前缀的公共前后缀（前缀的公共前后缀与后缀的公共前后缀是相同的，即可以得到前缀的前缀与后缀的后缀），继续计算。   </p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>双指针</li>
+<li>反转<ul>
+<li>整体反转与局部反转</li>
+</ul>
+</li>
+<li>KMP</li>
+</ul>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%AE%97%E6%B3%95/">算法</a></div><div class="post-share"><div class="social-share" data-image="/imgs/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/2025/03/25/algorithm/hash/" title="算法题-哈希"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">算法题-哈希</div></div></div></a><a class="pagination-related  no-desc" href="/2025/04/14/algorithm/doublePointer/" title="算法题-双指针"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">算法题-双指针</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related no-desc" href="/2025/02/14/algorithm/array/" title="算法题-数组"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-14</div><div class="info-item-2">算法题-数组</div></div></div></a><a class="pagination-related no-desc" href="/2025/04/14/algorithm/doublePointer/" title="算法题-双指针"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-14</div><div class="info-item-2">算法题-双指针</div></div></div></a><a class="pagination-related no-desc" href="/2025/03/25/algorithm/hash/" title="算法题-哈希"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-25</div><div class="info-item-2">算法题-哈希</div></div></div></a><a class="pagination-related no-desc" href="/2025/03/20/algorithm/linkList/" title="算法题-链表"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-20</div><div class="info-item-2">算法题-链表</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/imgs/avatar.jpg" onerror="this.onerror=null;this.src='/imgs/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">似锦</div><div class="author-info-description">编织如锦</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/pathwoven"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-text">基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95-%E6%9C%89%E5%A4%9A%E7%A7%8D%E5%AE%9E%E7%8E%B0%EF%BC%8C%E8%87%AA%E5%B7%B1%E6%8E%A8%E4%B8%80%E9%81%8D%E5%8D%B0%E8%B1%A1%E6%9B%B4%E6%B7%B1"><span class="toc-text">KMP算法(有多种实现，自己推一遍印象更深)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E7%BC%80%E8%A1%A8%E4%B8%8Enext%E6%95%B0%E7%BB%84"><span class="toc-text">前缀表与next数组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E9%99%85%E5%8C%B9%E9%85%8D"><span class="toc-text">实际匹配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#tips"><span class="toc-text">tips</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">反转字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3"><span class="toc-text">解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%BF%E6%8D%A2%E6%95%B0%E5%AD%97"><span class="toc-text">替换数字</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%AD%E7%9A%84%E5%8D%95%E8%AF%8D"><span class="toc-text">反转字符串中的单词</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3-1"><span class="toc-text">解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%B3%E6%97%8B%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">右旋字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3-2"><span class="toc-text">解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8C%B9%E9%85%8D%E6%A8%A1%E5%BC%8F%E4%B8%B2"><span class="toc-text">匹配模式串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">重复的子字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3-3"><span class="toc-text">解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95"><span class="toc-text">KMP算法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/14/algorithm/doublePointer/" title="算法题-双指针">算法题-双指针</a><time datetime="2025-04-14T08:02:25.000Z" title="发表于 2025-04-14 16:02:25">2025-04-14</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/08/algorithm/string/" title="算法题-字符串">算法题-字符串</a><time datetime="2025-04-08T05:28:33.000Z" title="发表于 2025-04-08 13:28:33">2025-04-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/25/algorithm/hash/" title="算法题-哈希">算法题-哈希</a><time datetime="2025-03-25T14:11:52.000Z" title="发表于 2025-03-25 22:11:52">2025-03-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/20/algorithm/linkList/" title="算法题-链表">算法题-链表</a><time datetime="2025-03-20T13:45:23.000Z" title="发表于 2025-03-20 21:45:23">2025-03-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/02/14/algorithm/array/" title="算法题-数组">算法题-数组</a><time datetime="2025-02-14T08:38:53.000Z" title="发表于 2025-02-14 16:38:53">2025-02-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By 似锦</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
